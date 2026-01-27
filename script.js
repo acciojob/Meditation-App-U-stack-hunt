@@ -1,4 +1,3 @@
-//your JS code here. If required.
 const app = document.querySelector("#app");
 const video = document.querySelector("video");
 const audio = document.querySelector("audio");
@@ -60,3 +59,4 @@ audio.ontimeupdate = () => {
     }
     updateTime(Math.floor(remaining));
 };
+
