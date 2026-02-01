@@ -1,62 +1,65 @@
-const app = document.querySelector("#app");
+const app = document.getElementById("app");
+const song = document.querySelector(".song");
 const video = document.querySelector("video");
-const audio = document.querySelector("audio");
 const playBtn = document.querySelector(".play");
 const timeDisplay = document.querySelector(".time-display");
+const timeSelect = document.querySelectorAll("#time-select button");
+const soundPicker = document.querySelectorAll(".sound-picker button");
 
-const soundButtons = document.querySelectorAll(".sound-picker button");
-const timeButtons = document.querySelectorAll("#time-select button");
-
-let duration = 600; // default 10 minutes
+let fakeDuration = 600; // default 10 min
 
 // Play / Pause
 playBtn.addEventListener("click", () => {
-    if (audio.paused) {
-        audio.play();
+    if (song.paused) {
+        song.play();
         video.play();
-        playBtn.textContent = "Pause";
+        playBtn.textContent = "⏸";
     } else {
-        audio.pause();
+        song.pause();
         video.pause();
-        playBtn.textContent = "Play";
+        playBtn.textContent = "▶";
     }
 });
 
-// Sound Switching
-soundButtons.forEach(button => {
+// Change Sound & Video
+soundPicker.forEach(button => {
     button.addEventListener("click", function () {
-        audio.src = this.dataset.sound;
-        video.src = this.dataset.video;
-        audio.play();
+        song.src = this.getAttribute("data-sound");
+        video.src = this.getAttribute("data-video");
+        song.play();
         video.play();
-        playBtn.textContent = "Pause";
+        playBtn.textContent = "⏸";
     });
 });
 
-// Time Selection
-timeButtons.forEach(button => {
+// Change Time
+timeSelect.forEach(button => {
     button.addEventListener("click", function () {
-        duration = this.dataset.time;
-        updateTime(duration);
+        fakeDuration = this.getAttribute("data-time");
+        updateTime(fakeDuration);
     });
 });
 
 // Update Time Display
-function updateTime(time) {
-    const minutes = Math.floor(time / 60);
-    const seconds = time % 60;
+const updateTime = (time) => {
+    let minutes = Math.floor(time / 60);
+    let seconds = Math.floor(time % 60);
     timeDisplay.textContent = `${minutes}:${seconds}`;
-}
-
-// Countdown Logic
-audio.ontimeupdate = () => {
-    let remaining = duration - audio.currentTime;
-    if (remaining <= 0) {
-        audio.pause();
-        video.pause();
-        audio.currentTime = 0;
-        playBtn.textContent = "Play";
-    }
-    updateTime(Math.floor(remaining));
 };
 
+// Countdown
+song.ontimeupdate = () => {
+    let remainingTime = fakeDuration - song.currentTime;
+
+    let minutes = Math.floor(remainingTime / 60);
+    let seconds = Math.floor(remainingTime % 60);
+
+    timeDisplay.textContent = `${minutes}:${seconds}`;
+
+    if (song.currentTime >= fakeDuration) {
+        song.pause();
+        video.pause();
+        song.currentTime = 0;
+        playBtn.textContent = "▶";
+    }
+};
