@@ -1,12 +1,16 @@
-const app = document.getElementById("app");
 const song = document.querySelector(".song");
 const video = document.querySelector("video");
 const playBtn = document.querySelector(".play");
 const timeDisplay = document.querySelector(".time-display");
-const timeSelect = document.querySelectorAll("#time-select button");
-const soundPicker = document.querySelectorAll(".sound-picker button");
+const timeButtons = document.querySelectorAll("#time-select button");
+const soundButtons = document.querySelectorAll(".sound-picker button");
+const progressCircle = document.querySelector(".progress circle");
 
-let fakeDuration = 600; // default 10 min
+const outlineLength = 879;
+progressCircle.style.strokeDasharray = outlineLength;
+progressCircle.style.strokeDashoffset = outlineLength;
+
+let fakeDuration = 600;
 
 // Play / Pause
 playBtn.addEventListener("click", () => {
@@ -21,45 +25,47 @@ playBtn.addEventListener("click", () => {
     }
 });
 
-// Change Sound & Video
-soundPicker.forEach(button => {
+// Change sound & video
+soundButtons.forEach(button => {
     button.addEventListener("click", function () {
-        song.src = this.getAttribute("data-sound");
-        video.src = this.getAttribute("data-video");
+        song.src = this.dataset.sound;
+        video.src = this.dataset.video;
         song.play();
         video.play();
         playBtn.textContent = "⏸";
     });
 });
 
-// Change Time
-timeSelect.forEach(button => {
+// Change time
+timeButtons.forEach(button => {
     button.addEventListener("click", function () {
-        fakeDuration = this.getAttribute("data-time");
+        fakeDuration = this.dataset.time;
         updateTime(fakeDuration);
     });
 });
 
-// Update Time Display
-const updateTime = (time) => {
-    let minutes = Math.floor(time / 60);
-    let seconds = Math.floor(time % 60);
-    timeDisplay.textContent = `${minutes}:${seconds}`;
-};
-
-// Countdown
+// Update countdown
 song.ontimeupdate = () => {
-    let remainingTime = fakeDuration - song.currentTime;
+    let currentTime = song.currentTime;
+    let remaining = fakeDuration - currentTime;
 
-    let minutes = Math.floor(remainingTime / 60);
-    let seconds = Math.floor(remainingTime % 60);
-
+    let minutes = Math.floor(remaining / 60);
+    let seconds = Math.floor(remaining % 60);
     timeDisplay.textContent = `${minutes}:${seconds}`;
 
-    if (song.currentTime >= fakeDuration) {
+    let progress = outlineLength - (currentTime / fakeDuration) * outlineLength;
+    progressCircle.style.strokeDashoffset = progress;
+
+    if (currentTime >= fakeDuration) {
         song.pause();
         video.pause();
         song.currentTime = 0;
         playBtn.textContent = "▶";
     }
 };
+
+// Initial time
+function updateTime(time) {
+    let minutes = Math.floor(time / 60);
+    timeDisplay.textContent = `${minutes}:0`;
+}
